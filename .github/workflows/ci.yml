@@ -1,0 +1,33 @@
+name: Inhalt prüfen
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Inhalte prüfen
+        run: python3 check_content.py
+
+  # Der Server folgt dem Branch "live", nie "main". Erst wenn die Prüfung
+  # oben grün ist, wird "live" auf den geprüften Stand vorgezogen. Ein
+  # fehlerhafter Commit erreicht die Webseite damit gar nicht erst, und ein
+  # Rücknehmen ist ein Zurücksetzen von "live", ohne Server-Zugriff.
+  promote:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: live auf den geprüften Stand vorziehen
+        run: git push origin HEAD:refs/heads/live
