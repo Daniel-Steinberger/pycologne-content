@@ -1,0 +1,9 @@
+PyCologne ist zurück auf Facebook! 🐍
+
+Nach ein paar Jahren Funkstille wollen wir diese Seite wieder regelmäßig bespielen: mit den Terminen unserer monatlichen Treffen, den Themen der Abende und Rückblicken. Die Python User Group Köln trifft sich wie eh und je an jedem zweiten Mittwoch im Monat, offen für alle, von Einsteiger:innen bis zu alten Hasen.
+
+Der nächste Termin: Mittwoch, 9. September 2026, 19:00 Uhr, diesmal im Cologne Game Lab (Schanzenstraße 28, Köln). Andreas zeigt eine Anwendung zur Klassifikation beliebiger Daten mit Textual, scikit-learn und SVC, inklusive Code-Deep-Dive.
+
+Anmeldung, kostenlos und unverbindlich: https://www.meetup.com/pycologne/
+
+Auf der Webseite gibt es außerdem alle Termine als Kalender-Abo und die Protokolle unserer Treffen bis zurück ins Jahr 2013, mit Volltextsuche: https://www.pycologne.de

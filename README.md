@@ -57,6 +57,53 @@ Dateinamen der Termine gültige Daten sind, dass jede Seite mit ihrer
 Überschrift beginnt, dass Adressen im Text als Links ausgezeichnet sind und
 dass verwendete Bilder auch wirklich im Repo liegen.
 
+## Facebook-Posts
+
+Termine und Rückblicke lassen sich auf die Facebook-Page "pyCologne"
+posten, von Hand ausgelöst über den GitHub-Workflow **Facebook-Post**
+(Actions, "Run workflow"): entweder Termin-Daten angeben (baut den Post
+aus der jeweiligen `md/events`-Datei, Zukunft wird Ankündigung,
+Vergangenheit wird Rückblick mit Themenliste) oder eine Textdatei aus
+[posts/](posts/) für Freitext. Lokal lässt sich jeder Post vorab ansehen:
+
+```sh
+python3 facebook_post.py event 2026-09-09
+python3 facebook_post.py text --file posts/2026-08-neustart.txt
+```
+
+Ohne Zugangsdaten ist das ein Probelauf, es wird nichts gesendet.
+
+**Einmalige Einrichtung** (Stand 2026, braucht einen Facebook-Account mit
+Admin-Rolle auf der Page):
+
+1. Auf [developers.facebook.com](https://developers.facebook.com/) eine App
+   anlegen (Typ egal, sie bleibt privat). Kein App-Review nötig: Metas
+   "Standard Access" erlaubt die Berechtigungen für Nutzer mit Rolle in der
+   App, und wer die App anlegt, ist ihr Admin.
+2. Im [Graph API Explorer](https://developers.facebook.com/tools/explorer/)
+   die App auswählen und einen User-Token mit den Berechtigungen
+   `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`
+   erzeugen (beim Generieren wird die Page ausgewählt).
+3. Den Token langlebig machen und daraus den Page-Token holen (der läuft
+   in dieser Konstellation nicht ab). `APP_ID`/`APP_SECRET` stehen im
+   App-Dashboard:
+
+   ```sh
+   curl "https://graph.facebook.com/v23.0/oauth/access_token?grant_type=fb_exchange_token&client_id=APP_ID&client_secret=APP_SECRET&fb_exchange_token=USER_TOKEN"
+   curl "https://graph.facebook.com/v23.0/me/accounts?access_token=LANGLEBIGER_USER_TOKEN"
+   ```
+
+   Die zweite Antwort enthält pro Page `id` und `access_token`.
+4. Beides als Secrets in diesem Repo hinterlegen:
+
+   ```sh
+   gh secret set FB_PAGE_ID --repo Daniel-Steinberger/pycologne-content
+   gh secret set FB_PAGE_TOKEN --repo Daniel-Steinberger/pycologne-content
+   ```
+
+Facebook-Kalender-Events kann die API übrigens nicht anlegen (das ist
+Ticketing-Partnern vorbehalten), es geht um Feed-Posts.
+
 ## Örtlich ansehen
 
 Mit dem App-Repo daneben lässt sich die Seite lokal starten:

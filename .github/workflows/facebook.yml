@@ -1,0 +1,60 @@
+name: Facebook-Post
+
+# Von Hand ausgeloest (Actions, Facebook-Post, Run workflow). Entweder
+# Termin-Daten angeben (baut Ankuendigung oder Rueckblick aus der
+# jeweiligen md/events-Datei) oder eine Textdatei aus posts/.
+#
+# Ohne die Secrets FB_PAGE_ID und FB_PAGE_TOKEN laeuft ein Probelauf:
+# der fertige Post erscheint nur im Log. Einrichtung s. README.
+#
+# Bewusst noch kein automatischer Trigger bei Content-Aenderungen: wann
+# ein Termin gepostet werden soll (beim Anlegen? bei der
+# Programm-Ankuendigung? beim Protokoll?) ist redaktionell noch nicht
+# entschieden, s. pycologne-infrastructure/pycologne-themen.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dates:
+        description: "Termin-Daten (JJJJ-MM-TT, mehrere mit Leerzeichen)"
+        required: false
+        default: ""
+      file:
+        description: "Textdatei im Repo (z. B. posts/2026-08-neustart.txt)"
+        required: false
+        default: ""
+      link:
+        description: "Optionaler Link fuer den Textpost (Link-Vorschau)"
+        required: false
+        default: ""
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Posten
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          DATES: ${{ inputs.dates }}
+          FILE: ${{ inputs.file }}
+          LINK: ${{ inputs.link }}
+        run: |
+          set -euo pipefail
+          if [ -n "$DATES" ]; then
+            # shellcheck disable=SC2086
+            python3 facebook_post.py event $DATES
+          fi
+          if [ -n "$FILE" ]; then
+            if [ -n "$LINK" ]; then
+              python3 facebook_post.py text --file "$FILE" --link "$LINK"
+            else
+              python3 facebook_post.py text --file "$FILE"
+            fi
+          fi
+          if [ -z "$DATES" ] && [ -z "$FILE" ]; then
+            echo "Nichts zu tun: weder dates noch file angegeben." >&2
+            exit 1
+          fi
