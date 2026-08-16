@@ -4,6 +4,7 @@ Nach ein paar Jahren Funkstille wollen wir diese Seite wieder regelmäßig bespi
 
 Der nächste Termin: Mittwoch, 9. September 2026, 19:00 Uhr, diesmal im Cologne Game Lab (Schanzenstraße 28, Köln). Andreas zeigt eine Anwendung zur Klassifikation beliebiger Daten mit Textual, scikit-learn und SVC, inklusive Code-Deep-Dive.
 
+Alle Infos zum Termin: https://www.pycologne.de/events/2026-09-09
 Anmeldung, kostenlos und unverbindlich: https://www.meetup.com/pycologne/
 
 Auf der Webseite gibt es außerdem alle Termine als Kalender-Abo und die Protokolle unserer Treffen bis zurück ins Jahr 2013, mit Volltextsuche: https://www.pycologne.de
