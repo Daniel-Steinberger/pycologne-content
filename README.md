@@ -84,16 +84,20 @@ Admin-Rolle auf der Page):
    die App auswählen und einen User-Token mit den Berechtigungen
    `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`
    erzeugen (beim Generieren wird die Page ausgewählt).
-3. Den Token langlebig machen und daraus den Page-Token holen (der läuft
-   in dieser Konstellation nicht ab). `APP_ID`/`APP_SECRET` stehen im
-   App-Dashboard:
+3. Den Token langlebig machen und daraus den Page-Token holen.
+   `APP_ID`/`APP_SECRET` stehen im App-Dashboard, die Page-ID der
+   pyCologne-Page ist `154676081210867`:
 
    ```sh
    curl "https://graph.facebook.com/v23.0/oauth/access_token?grant_type=fb_exchange_token&client_id=APP_ID&client_secret=APP_SECRET&fb_exchange_token=USER_TOKEN"
-   curl "https://graph.facebook.com/v23.0/me/accounts?access_token=LANGLEBIGER_USER_TOKEN"
+   curl "https://graph.facebook.com/v23.0/154676081210867?fields=access_token&access_token=LANGLEBIGER_USER_TOKEN"
    ```
 
-   Die zweite Antwort enthält pro Page `id` und `access_token`.
+   Wichtig ist der zweite Aufruf in genau dieser Form: Der so geholte
+   Page-Token **läuft nie ab** (prüfbar über den Access Token Debugger,
+   `expires_at: 0`). Der naheliegendere Weg über `/me/accounts` lieferte
+   beim Einrichten am 17.08.2026 dagegen einen Token mit nur ~60 Tagen
+   Laufzeit.
 4. Beides als Secrets in diesem Repo hinterlegen:
 
    ```sh
