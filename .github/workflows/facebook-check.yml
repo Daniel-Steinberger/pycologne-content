@@ -1,0 +1,39 @@
+name: Facebook nachsehen
+
+# Rein lesend: fragt die Graph-API, was auf der Page steht. Aendert nichts
+# und kann deshalb gefahrlos jederzeit laufen.
+#
+# Gebraucht, weil das Absetzen eines Posts nur eine ID zurueckgibt. Ob der
+# Beitrag danach noch existiert, sagt allein ein Abruf. Genau dieser Fall
+# trat am 17.08.2026 ein: der Workflow Facebook-Post meldete eine ID, der
+# Beitrag war spaeter aber unter keinem Permalink mehr abrufbar.
+#
+# Achtung beim Lesen des Logs: GitHub maskiert FB_PAGE_ID, in Beitrags-IDs
+# erscheint der Page-Anteil deshalb als ***.
+
+on:
+  workflow_dispatch:
+    inputs:
+      post:
+        description: "Einzelne Beitrags-ID abrufen (leer: die letzten Beitraege der Page)"
+        required: false
+        default: ""
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Page abfragen
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          POST: ${{ inputs.post }}
+        run: |
+          set -euo pipefail
+          if [ -n "$POST" ]; then
+            python3 facebook_post.py show --post "$POST"
+          else
+            python3 facebook_post.py show
+          fi

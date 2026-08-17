@@ -16,6 +16,11 @@ Modi:
     python3 facebook_post.py text --file posts/beispiel.txt [--link URL]
         Postet den Inhalt der Datei wörtlich, optional mit Link-Vorschau.
 
+    python3 facebook_post.py show [--post ID]
+        Sieht nur nach, was auf der Page steht, und ändert nichts. Nötig,
+        weil das Absetzen eines Posts lediglich eine ID zurückgibt: ob der
+        Beitrag danach noch existiert, sagt allein ein Abruf.
+
 Zugangsdaten kommen aus den Umgebungsvariablen FB_PAGE_ID und
 FB_PAGE_TOKEN (im Repo als GitHub-Secrets hinterlegt, Einrichtung s.
 README). Fehlen sie, läuft ein Probelauf: der fertige Post wird nur
@@ -32,6 +37,7 @@ import os
 import pathlib
 import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -179,6 +185,42 @@ def publish(message: str, link: str | None) -> None:
     print(f"Gepostet: {result.get('id', result)}")
 
 
+def _get(path: str, **params: str) -> dict:
+    """Eine lesende Graph-Abfrage, Antwort als Dictionary."""
+    token = os.environ.get("FB_PAGE_TOKEN", "")
+    if not token:
+        raise SystemExit("FB_PAGE_TOKEN ist nicht gesetzt, ohne Token geht kein Abruf.")
+    query = urllib.parse.urlencode({**params, "access_token": token})
+    try:
+        with urllib.request.urlopen(f"{GRAPH}/{path}?{query}") as response:
+            return json.load(response)
+    except urllib.error.HTTPError as error:
+        # Der Fehlertext von Graph sagt, woran es liegt, und ist genau das,
+        # was hier interessiert. Ohne ihn bleibt nur "HTTP 400".
+        return {"fehler": json.loads(error.read().decode("utf-8", "replace"))}
+
+
+def show(post_id: str | None) -> None:
+    """Zeigen, was auf der Page steht, ohne etwas zu aendern.
+
+    Gedacht zum Nachsehen, wenn ein Post nicht dort auftaucht, wo er
+    erwartet wird: das Absetzen liefert nur eine ID zurueck, ob der Beitrag
+    danach noch existiert, sagt allein ein Abruf.
+    """
+    page_id = os.environ.get("FB_PAGE_ID", "")
+    if post_id:
+        # Eine ID ohne Praefix gehoert zu dieser Page.
+        full = post_id if "_" in post_id else f"{page_id}_{post_id}"
+        print(f"--- Abruf des Beitrags {full} ---")
+        print(json.dumps(_get(full, fields="id,created_time,message,permalink_url"), indent=2))
+        return
+
+    fields = "id,created_time,message,permalink_url,is_published,is_hidden"
+    for edge in ("feed", "published_posts", "posts"):
+        print(f"--- {edge} ---")
+        print(json.dumps(_get(f"{page_id}/{edge}", fields=fields, limit="15"), indent=2))
+
+
 def main() -> int:
     """Kommandozeile auswerten, s. Moduldocstring."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -191,11 +233,16 @@ def main() -> int:
     text_cmd.add_argument("--file", required=True)
     text_cmd.add_argument("--link", default=None)
 
+    show_cmd = sub.add_parser("show", help="Nachsehen, was auf der Page steht (nur lesend)")
+    show_cmd.add_argument("--post", default=None, help="Eine einzelne Beitrags-ID abrufen")
+
     args = parser.parse_args()
     if args.mode == "event":
         for stem in args.dates:
             message, link = event_message(stem)
             publish(message, link)
+    elif args.mode == "show":
+        show(args.post)
     else:
         message = (ROOT / args.file).read_text(encoding="utf-8").strip()
         publish(message, args.link)
