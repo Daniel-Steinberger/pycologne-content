@@ -13,9 +13,10 @@ und niemand braucht dafür Zugang zum Server.
 
 ```
 md/events/JJJJ-MM-TT.md   Ein Treffen: vorher die Ankündigung, hinterher das Protokoll
+md/news/JJJJ-MM-TT-name.md  Ein News-Eintrag, s. u.
 md/about.md               Seite "Die User Group"
 md/contact.md             Seite "Kontakt"
-images/                   Logos
+images/                   Logos und das Vorschaubild für soziale Netze
 images/events/            Bilder zu einzelnen Terminen
 ```
 
@@ -31,6 +32,33 @@ etwa so:
 ```markdown
 ![Screenshot der Anwendung](/static/images/events/2026-09-09-klassifikation-demo.svg)
 ```
+
+## News schreiben
+
+Für alles, was keinen eigenen Termin hat: eine neue Datei unter `md/news/`,
+benannt nach Datum und einem Kurznamen, etwa
+`md/news/2026-08-17-facebook-nach-zehn-jahren.md`. Der Kurzname besteht aus
+Kleinbuchstaben, Ziffern und einzelnen Bindestrichen und steht später in der
+Adresse des Eintrags.
+
+Der Aufbau ist schlicht, kein Vorspann, keine Metadaten:
+
+```markdown
+# Überschrift des Eintrags
+
+Der erste Absatz ist der Teaser. Er steht in der Übersicht, im Atom-Feed und
+in der Vorschau, wenn jemand den Link teilt. Danach folgt der Rest.
+```
+
+Daraus entstehen von selbst die Übersicht unter
+[pycologne.de/news](https://www.pycologne.de/news), eine eigene Seite je
+Eintrag und der Atom-Feed unter
+[pycologne.de/news.atom](https://www.pycologne.de/news.atom). Das Datum kommt
+aus dem Dateinamen, nicht aus der Datei, und bestimmt die Reihenfolge.
+
+Verweise auf die eigene Seite dürfen relativ bleiben
+(`[nächstes Treffen](/events/2026-09-09)`), im Feed werden sie automatisch
+absolut gemacht, damit sie auch in einem Reader funktionieren.
 
 ## Ändern
 
@@ -53,9 +81,26 @@ python3 check_content.py
 ```
 
 Braucht nichts weiter als Python, keine Installation. Geprüft wird, dass die
-Dateinamen der Termine gültige Daten sind, dass jede Seite mit ihrer
-Überschrift beginnt, dass Adressen im Text als Links ausgezeichnet sind und
-dass verwendete Bilder auch wirklich im Repo liegen.
+Dateinamen der Termine gültige Daten sind, dass die Dateinamen der News dem
+Muster `JJJJ-MM-TT-kurzname` folgen, dass jede Seite mit ihrer Überschrift
+beginnt, dass Adressen im Text als Links ausgezeichnet sind und dass
+verwendete Bilder auch wirklich im Repo liegen.
+
+## Vorschaubild für soziale Netze
+
+`images/og-default.png` ist das Bild, das Facebook und X zeigen, wenn jemand
+einen Link auf die Seite teilt. Es muss ein Rasterbild in 1200x630 sein, aus
+SVG rendert dort keine Vorschau. Zusammengesetzt wurde es einmalig aus dem
+Logo und den Farben der Webseite:
+
+```sh
+uv run --with cairosvg --with pillow python make_og.py
+```
+
+Das Skript liegt absichtlich nicht hier, damit dieses Repo ohne
+Abhängigkeiten bleibt. Wer das Bild neu bauen will, braucht es also nicht
+wiederzufinden, sondern kann es genauso gut ersetzen: entscheidend sind
+Format und Größe.
 
 ## Facebook-Posts
 
