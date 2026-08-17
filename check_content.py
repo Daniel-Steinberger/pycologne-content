@@ -22,7 +22,14 @@ import sys
 
 ROOT = pathlib.Path(__file__).parent
 EVENTS_DIR = ROOT / "md" / "events"
+NEWS_DIR = ROOT / "md" / "news"
 IMAGES_DIR = ROOT / "images"
+
+# Dateiname eines News-Eintrags: Datum, dann ein Kurzname aus Kleinbuchstaben,
+# Ziffern und einzelnen Bindestrichen. Muss zu `_NEWS_SLUG` in
+# `pycgnweb/webapp.py` passen, sonst liegt hier eine Datei, welche die
+# Anwendung übergeht.
+NEWS_NAME = re.compile(r"(\d{4}-\d{2}-\d{2})-[a-z0-9]+(?:-[a-z0-9]+)*")
 
 # Adressen im Fließtext, die nicht als Link ausgezeichnet sind. Markdown-Links
 # ``[text](url)``, Autolinks ``<url>`` und Codeblöcke sind ausgenommen.
@@ -66,6 +73,34 @@ def check_event_filenames() -> list[str]:
             datetime.date.fromisoformat(path.stem)
         except ValueError:
             problems.append(f"{path.name}: Dateiname ist kein Datum im Format JJJJ-MM-TT")
+    return problems
+
+
+def check_news_filenames() -> list[str]:
+    """News-Dateien müssen `JJJJ-MM-TT-kurzname.md` heißen.
+
+    Aus dem Namen kommen Datum und Adresse des Eintrags. Passt er nicht,
+    übergeht die Anwendung die Datei stillschweigend: sie steht dann weder
+    in der Übersicht noch im Atom-Feed, und ihre Seite gibt es auch nicht.
+    """
+    if not NEWS_DIR.is_dir():
+        return []
+    problems = []
+    for path in sorted(NEWS_DIR.iterdir()):
+        if path.suffix != ".md":
+            problems.append(f"{path.name}: keine Markdown-Datei in md/news/")
+            continue
+        match = NEWS_NAME.fullmatch(path.stem)
+        if match is None:
+            problems.append(
+                f"{path.name}: Dateiname ist nicht JJJJ-MM-TT-kurzname "
+                "(Kleinbuchstaben, Ziffern, einzelne Bindestriche)"
+            )
+            continue
+        try:
+            datetime.date.fromisoformat(match.group(1))
+        except ValueError:
+            problems.append(f"{path.name}: {match.group(1)} ist kein gültiges Datum")
     return problems
 
 
@@ -117,6 +152,7 @@ def check_referenced_images_exist() -> list[str]:
 
 CHECKS = (
     ("Dateinamen der Termine", check_event_filenames),
+    ("Dateinamen der News", check_news_filenames),
     ("Überschriften", check_headings),
     ("verlinkte Adressen", check_addresses_are_linked),
     ("vorhandene Bilder", check_referenced_images_exist),
