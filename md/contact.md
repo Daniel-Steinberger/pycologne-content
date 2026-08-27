@@ -5,5 +5,6 @@ Am schnellsten erreichst Du uns über unsere
 alle kommenden Treffen an, und Du kannst Dich kostenlos für ein Treffen
 anmelden.
 
-Die Webseite ist gerade frisch im Aufbau. Sobald wir hier weitere
-Kontaktwege einrichten, findest Du sie an dieser Stelle.
+Per E-Mail erreichst Du uns unter <info@pycologne.de>. Dahinter steht
+seit dem 27. August 2026 wieder ein echtes Postfach, die Geschichte
+dazu steht in den [News](/news/2026-08-27-mail-wieder-erreichbar).
