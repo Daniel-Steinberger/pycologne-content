@@ -26,6 +26,27 @@ Eine Datei, deren Name kein Datum ist, taucht auf der Webseite nirgends auf,
 weder in der Übersicht noch in der Suche noch im Kalender-Abo. Deshalb prüft
 das die CI (s. u.).
 
+### Sonderveranstaltungen
+
+Liegt eine Termin-Datei auf einem anderen Tag als einem zweiten Mittwoch, ist
+sie eine Sonderveranstaltung, etwa ein großer Vortragsabend. Mehr braucht es
+dafür nicht: Die Webseite nimmt sie von selbst in die Terminvorschau und ins
+Kalender-Abo auf, hebt sie dort hervor und verlinkt sie. Drei Angaben liest sie
+aus der Datei:
+
+- den Titel aus der ersten Überschrift, etwa `# PyCologne #6`,
+- die Startzeit aus der `**Datum:**`-Zeile, etwa `ab 18:00 Uhr`; fehlt sie,
+  gilt 19:00 wie bei den Treffen,
+- den Ort aus der `**Ort:**`-Zeile, wie bei jedem Treffen.
+
+Im Kalender steht eine Sonderveranstaltung mit drei Stunden Dauer. Die Karte
+"Nächstes Treffen" bleibt beim nächsten regulären Mittwoch. Vorlage zum
+Abschauen: `md/events/2026-11-19.md`.
+
+Die Zeilen mit Datum, Ort und Anmeldung enden dort mit einem Backslash. Das ist
+ein harter Zeilenumbruch im Markdown, ohne ihn liefen die drei Zeilen auf der
+Seite zu einer zusammen.
+
 Bilder werden aus dem Text heraus als `/static/images/...` angesprochen, also
 etwa so:
 
